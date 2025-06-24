@@ -2,11 +2,14 @@
 import os
 from typing import List, Optional, Any
 
+from langchain.agents import (AgentType, Tool, initialize_agent)
+# from langchain.agents import Tool
+# from langchain.agents import initialize_agent
+from langchain.tools import tool
 from langchain_core.callbacks import CallbackManagerForLLMRun
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.outputs import ChatResult, ChatGeneration
-from langchain.tools import tool
 
 
 class QianfanChatModel(BaseChatModel):
@@ -71,10 +74,19 @@ bce_api_key = os.environ['QIANFAN_API_KEY']
 # 创建 LLM 对象（使用 gpt-3.5）
 chat_model =QianfanChatModel(api_key=bce_api_key, model_url=model_url)
 
-messages = [
-    SystemMessage("Translate the following from English into Chinese"),
-    HumanMessage("hi!"),
-]
+weather_tool = Tool(
+    name="get_weather",
+    func=get_weather,
+    description="输入城市名，返回天气情况。比如：get_weather('北京')"
+)
 
-answer = chat_model.invoke(messages)
-print(answer)
+
+agent = initialize_agent(
+    tools=[weather_tool],
+    llm=chat_model,
+    agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,  # 支持多轮推理 + Tool 调用
+    verbose=True
+)
+
+res = agent.run("请告诉我北京的天气如何？")
+print(res)
