@@ -1,9 +1,7 @@
 import os
 import openai
 
-bce_api_key = 'bce-v3/ALTAK-oCA20JUsptfsWIeUXLOXb/0517ee71cc56fcc52636cbcc86750e6fa62e616b'
-
-openai.api_key = os.environ.get('OPENAI_API_KEY')
+bce_api_key = os.environ.get('QIANFAN_API_KEY')
 
 # 工具函数：模拟一个天气查询
 def get_weather(city):
